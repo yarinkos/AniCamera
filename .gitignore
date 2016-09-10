@@ -1,0 +1,11 @@
+#Platform
+.idea/
+.gradle/
+caches/
+wrapper/
+build/
+*.iml
+*.ipr
+*.iws
+*.retry
+classes/

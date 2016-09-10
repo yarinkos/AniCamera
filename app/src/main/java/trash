@@ -1,0 +1,7 @@
+  //videoView.width
+     /*   String vidAddress = "https://archive.org/download/BigBuckBunny_328/BigBuckBunny_512kb.mp4";
+        //http://techslides.com/demos/sample-videos/small.mp4
+        File mediaFile = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "CameraSample" + File.separator +
+                "VID3.mp4");
+        */

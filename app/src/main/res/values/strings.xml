@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SnapApp</string>
+    <string name="btnCapture">capture</string>
+</resources>
