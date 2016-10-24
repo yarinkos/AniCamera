@@ -1,3 +1,4 @@
+/*
 package com.example.yarinkossover.snapapp.scenes;
 
 import java.io.IOException;
@@ -57,13 +58,15 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 
+*/
 /**
  * (c) 2010 Nicolas Gramlich
  * (c) 2011 Zynga
  *
  * @author Ncolas Gramlich
  * @since 11:54:51 - 03.04.2010
- */
+ *//*
+
 public class FaceAddSceneActivity extends SimpleBaseGameActivity {
 
     protected final String TAG = this.getClass().getSimpleName();
@@ -153,12 +156,14 @@ public class FaceAddSceneActivity extends SimpleBaseGameActivity {
 
 
     public void doSome() {
+*/
 /*
         mAnimatedPressTiledTextureRegion = mSantaDonkeyTextureRegion;
         mAnimatedPressAnimtedArray = mSantaDonkeyAnimtedArray;
         firstTileRow = mSantaDonkeyfirstTileRow;
         lastTileRow = mSantaDonkeylastTileRow;
-*/
+*//*
+
         mAnimatedPressTiledTextureRegion = mSantaSleighTextureRegion;
         mAnimatedPressAnimtedArray = mSantaSleighAnimtedArray;
         firstTileRow = mSantaSleighfirstTileRow;
@@ -169,7 +174,8 @@ public class FaceAddSceneActivity extends SimpleBaseGameActivity {
 
     }
 
-   /* @Override
+   */
+/* @Override
     public void onCreateTechnicalButtons() {
         button1 = (Button) findViewById(R.id.button1);
         button2 = (Button) findViewById(R.id.button2);
@@ -193,9 +199,13 @@ public class FaceAddSceneActivity extends SimpleBaseGameActivity {
                 if (v == button3) {
                     FaceAddSceneActivity.this.mExplosionSound.play();
                     mAnimatedPress.setX(1500);
-             *//*Log.e("ooo1",Integer.toString((int) face2.getX()));
+             *//*
+*/
+/*Log.e("ooo1",Integer.toString((int) face2.getX()));
              Log.e("ooo2",Integer.toString((int) getwidthBmp()));
      		Log.e("ooo3",Integer.toString(getStartX()));*//*
+*/
+/*
                 }
                 if (v == button2) {
                     setBubbleText();
@@ -219,7 +229,8 @@ public class FaceAddSceneActivity extends SimpleBaseGameActivity {
         button2.setOnClickListener(buttonListenerTechnical);
         button1.setOnClickListener(buttonListenerTechnical);
     }
-*/
+*//*
+
 
     Sprite twitterLogo;
     Intent menuIntent;
@@ -444,6 +455,7 @@ public class FaceAddSceneActivity extends SimpleBaseGameActivity {
                                         new ScaleModifier(0.5f, 0.7f, 0.9f), new RotationModifier(1f, -15, 15)),
                                 new ParallelEntityModifier(
                                         new ScaleModifier(0.5f, 0.9f, 0.7f), new RotationModifier(1f, 15, -15))
+*/
 /*new ScaleModifier(2, 1, 0.5f),
 new DelayModifier(0.5f),
 new ParallelEntityModifier(
@@ -453,7 +465,8 @@ new RotationByModifier(3, 90)
 new ParallelEntityModifier(
 new ScaleModifier(3, 1.5f, 1),
 new RotationModifier(3, 180, 0)
-)*/
+)*//*
+
                         )
                 );
 
@@ -785,3 +798,4 @@ new RotationModifier(3, 180, 0)
 // ===========================================================
 
 
+*/

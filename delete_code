@@ -1,0 +1,73 @@
+  ArrayList<String> data = new ArrayList<String>();
+        data.add("A");
+        data.add("B");
+        data.add("C");
+
+        ViewPager myViewPager = (ViewPager) viewPager.findViewById(R.id.pager);
+        myViewPager.addView(guiView);
+        myViewPager.setAdapter(new MyViewPagerAdapter(getActivity(), data));
+        myViewPager.setCurrentItem(1);
+
+
+         private class MyViewPagerAdapter extends PagerAdapter {
+
+                private List<String> data;
+                private Context ctx;
+
+                public MyViewPagerAdapter(Context ctx, List<String> data) {
+                    this.ctx = ctx;
+                    this.data = data;
+                }
+
+                @Override
+                public int getCount() {
+                    return data.size();
+                }
+
+                @Override
+                public Object instantiateItem(ViewGroup collection, int position) {
+                    View v = inflater.inflate(R.layout.activity_main_old, null);
+                   /* TextView view = (TextView)v.findViewById(R.id.textView);
+                    view.setText(data.get(position));
+                //    if(data.contains("B")) v.*/
+
+                    if (position == 1) {
+                        //   View vl = inflater.inflate(R.layout.main_activity, null);
+                        ((ViewPager) collection).addView(guiView);
+                        return guiView;
+                    } else
+                        ((ViewPager) collection).addView(v);
+                    return v;
+                }
+
+                @Override
+                public void destroyItem(ViewGroup collection, int position, Object view) {
+                   /* if(position==1)
+                       collection.removeView(guiView);
+                    else*/
+                    collection.removeView((View) view);
+                }
+
+                @Override
+                public boolean isViewFromObject(View view, Object object) {
+                    return view == object;
+                }
+
+                @Override
+                public Parcelable saveState() {
+                    return null;
+                }
+
+                @Override
+                public void restoreState(Parcelable arg0, ClassLoader arg1) {
+                }
+
+                @Override
+                public void startUpdate(ViewGroup arg0) {
+                }
+
+                @Override
+                public void finishUpdate(ViewGroup arg0) {
+                }
+
+            }

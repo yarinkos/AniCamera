@@ -17,8 +17,14 @@
 package com.example.yarinkossover.snapapp;
 
 import android.app.Activity;
+import android.support.v4.app.Fragment;
+//import android.app.Fragment;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.yarinkossover.snapapp.utils.Utils;
 import com.example.yarinkossover.snapapp.views.CameraTextureView;
@@ -29,7 +35,7 @@ import com.example.yarinkossover.snapapp.views.CameraTextureView;
  * A {@link android.view.TextureView} is used as the camera preview which limits the code to API 14+. This
  * can be easily replaced with a {@link android.view.SurfaceView} to run on older devices.
  */
-public class CameraActivity extends Activity {
+public class CameraActivity extends Fragment {
 
     public CameraTextureView mPreview;
     private static final String TAG = "Recorder";
@@ -37,26 +43,37 @@ public class CameraActivity extends Activity {
 
 
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_inflater, container, false);
+        mPreview = new CameraTextureView(getActivity());
+        ((ViewGroup)rootView).addView(mPreview,Utils.createSurfaceViewLayoutParams());
+        /*View guiViewTest = inflater.inflate(R.layout.main_activity, null);
+        ((ViewGroup)rootView).addView(guiViewTest,Utils.createSurfaceViewLayoutParams());*/
+        return rootView;
+    }
+
+  /*  @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.sample_main);
         mPreview = new CameraTextureView(this);
         //TextureView) findViewById(R.id.surface_view);
         this.addContentView(mPreview, Utils.createSurfaceViewLayoutParams());
-        mPreview.startCameraPreview();
+      //  mPreview.startCameraPreview();
 
-    }
+    }*/
 
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
 
 
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         // if we are using MediaRecorder, release it first
         mPreview.releaseMediaRecorder();

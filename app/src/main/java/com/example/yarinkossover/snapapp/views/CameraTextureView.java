@@ -145,7 +145,7 @@ public class CameraTextureView extends TextureView {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public boolean prepareVideoRecorder() {
-        startCameraPreview();
+        //startCameraPreview();
         // BEGIN_INCLUDE (configure_media_recorder)
         mMediaRecorder = new MediaRecorder();
 

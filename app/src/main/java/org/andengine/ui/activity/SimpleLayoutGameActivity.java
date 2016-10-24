@@ -1,3 +1,4 @@
+/*
 package org.andengine.ui.activity;
 
 import java.io.IOException;
@@ -6,6 +7,7 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.ui.IGameInterface;
 
 
+*/
 /**
  * This class exists so that the callback parameters of the methods in {@link IGameInterface} get called automatically.
  *
@@ -13,7 +15,8 @@ import org.andengine.ui.IGameInterface;
  *
  * @author Nicolas Gramlich <ngramlich@zynga.com>
  * @since 3:11:05 PM - Jan 12, 2012
- */
+ *//*
+
 public abstract class SimpleLayoutGameActivity extends LayoutGameActivity {
 	// ===========================================================
 	// Constants
@@ -65,3 +68,4 @@ public abstract class SimpleLayoutGameActivity extends LayoutGameActivity {
 	// Inner and Anonymous Classes
 	// ===========================================================
 }
+*/
