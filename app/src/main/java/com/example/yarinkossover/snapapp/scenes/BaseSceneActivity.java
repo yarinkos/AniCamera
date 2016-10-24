@@ -1,6 +1,7 @@
 package com.example.yarinkossover.snapapp.scenes;
 
 import android.graphics.Typeface;
+import android.util.Log;
 
 import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
@@ -47,6 +48,10 @@ import org.andengine.util.modifier.LoopModifier;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import lombok.Getter;
+import lombok.Setter;
 
 
 /**
@@ -80,9 +85,12 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
     private TextureRegion mSunTextureRegion;
 
 
-    ArrayList<BaseAnimationModel> baseAnimationModels = new ArrayList<>();
-    ArrayList<BaseSpriteModel> baseSprite = new ArrayList<>();
+    HashMap<String, BaseAnimationModel> baseAnimationModels = new HashMap<>();
+    HashMap<String, BaseSpriteModel> baseSpriteModels = new HashMap<>();
+
     private String mSantaDonkeyFileName = "CloudRain.png";
+    private int col = 6;
+    private int row = 3;
     private long mSantaDonkeyFrameDuration = 125;
     private int mSantaDonkeyFrameCount = 17;
     private long[] mSantaDonkeyAnimtedArray = new long[]{125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125};
@@ -134,6 +142,7 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
 // ===========================================================
 
 
+
     public void doSome() {
 /*
         mAnimatedPressTiledTextureRegion = mSantaDonkeyTextureRegion;
@@ -141,8 +150,9 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
         firstTileRow = mSantaDonkeyfirstTileRow;
         lastTileRow = mSantaDonkeylastTileRow;
 */
-
-        animationIndex = animationIndex >= 5 ? 0 : animationIndex;
+        createAnimatedSprite("SantaDonkey");
+        createSprite("Sun");
+     /*   animationIndex = animationIndex >= 5 ? 0 : animationIndex;
         initCurrentAnimation(animationIndex);
 
         switchAnimatedSprite();
@@ -153,16 +163,50 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
         else
             mAnimatedPress.animate(mAnimatedPressAnimtedArray, firstTileRow, lastTileRow, true);
         //onStopStartAnimation(mAnimatedPress);
-        animationIndex++;
+        animationIndex++;*/
     }
 
     private void initAnimationModels() {
-        baseAnimationModels.add(new BaseAnimationModel(mSantaDonkeyTextureRegion, mSantaDonkeyAnimtedArray, mSantaDonkeyfirstTileRow, mSantaDonkeylastTileRow));
-        baseAnimationModels.add(new BaseAnimationModel(mSantaWalkingTextureRegion, mSantaWalkingAnimtedArray, mSantaWalkingfirstTileRow, mSantaWalkinglastTileRow));
-        baseAnimationModels.add(new BaseAnimationModel(mSnowmanTextureRegion, mSnowmanAnimtedArray, mSnowmanfirstTileRow, mSnowmanlastTileRow));
-        baseAnimationModels.add(new BaseAnimationModel(mSantaSleighTextureRegion, mSantaSleighAnimtedArray, mSantaSleighfirstTileRow, mSantaSleighlastTileRow));
-        baseSprite.add(new BaseSpriteModel(mSunTextureRegion));
+        baseAnimationModels.put("SantaDonkey", new BaseAnimationModel("CloudRain.png", 6, 3, 125, 17));
+        baseAnimationModels.put("SantaWalking", new BaseAnimationModel("SantaWalking.png", 3, 2, 125,5));
+        baseAnimationModels.put("Snowman", new BaseAnimationModel("CoolCat.png", 4, 4, 125,14));
+        baseAnimationModels.put("SantaSleigh", new BaseAnimationModel("animal1.png", 4, 4, 125,16));
 
+    }
+    private void initSpriteModels() {
+        baseSpriteModels.put("Sun", new BaseSpriteModel("sun.png"));
+    }
+    private AnimatedSprite createAnimatedSprite(String animationKey) {
+        Log.d(TAG,"createAnimatedSprite");
+        BaseAnimationModel baseAnimationModel = baseAnimationModels.get(animationKey);
+        AnimatedSprite animatedSprite = new AnimatedSprite(100, 100, CAMERA_WIDTH / 4, CAMERA_HEIGHT / 4, baseAnimationModel.getTiledTextureRegion(), this.getVertexBufferObjectManager()) {
+            @Override
+            public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+                this.setPosition(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
+                Log.d(TAG,"DEBUG");
+                return true;
+            }
+        };
+
+        scene.registerTouchArea(animatedSprite);
+        scene.attachChild(animatedSprite);
+
+        return animatedSprite;
+    }
+    private Sprite createSprite(String spriteKey) {
+        BaseSpriteModel baseSpriteModel = baseSpriteModels.get(spriteKey);
+        Sprite sprite = new Sprite((CAMERA_WIDTH*5)/6, (CAMERA_HEIGHT*5)/6, CAMERA_WIDTH / 3, CAMERA_HEIGHT / 3, baseSpriteModel.getTextureRegion(), this.getVertexBufferObjectManager()) {
+            @Override
+            public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+                this.setPosition(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
+                return true;
+            }
+        };
+
+        scene.registerTouchArea(sprite);
+        scene.attachChild(sprite);
+
+        return sprite;
     }
 
     int animationIndex = 0;
@@ -191,22 +235,6 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
         scene.attachChild(mAnimatedPress);
         // scene.sortChildren(true);
 
-    }
-
-
-    Sprite twitterLogo;
-
-
-    public void onStopStartAnimation(AnimatedSprite mAnimatedSprite) {
-        if (mAnimatedSprite.isAnimationRunning()) {
-            mAnimatedSprite.stopAnimation(mAnimatedSprite.getCurrentTileIndex());
-        } else {
-            mAnimatedPress.animate(mAnimatedPressAnimtedArray, firstTileRow, lastTileRow, true);
-        }
-    }
-
-    public void setAnimtedSpritePress(AnimatedSprite mAnimatedSprite) {
-        this.mAnimatedPress = mAnimatedSprite;
     }
 
 
@@ -245,13 +273,21 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/band scene/");
 
         this.mBitmapTextureAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(), 4096, 4096, TextureOptions.BILINEAR);
+        initSpriteModels();
+        initAnimationModels();
+        for (BaseAnimationModel value : baseAnimationModels.values()) {
+            value.setTiledTextureRegion(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, getActivity(), value.getFileName(), value.getCol(), value.getRow()));
+        }
+        for (BaseSpriteModel value : baseSpriteModels.values()) {
+            value.setTextureRegion(BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBitmapTextureAtlas, getActivity(), value.getFileName()));
+        }
 
-        this.mSantaDonkeyTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, mSantaDonkeyFileName, 6, 3); //col/row
-        this.mSantaWalkingTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "SantaWalking.png", 3, 2);
-        this.mSnowmanTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "CoolCat.png", 4, 4);
-        this.mSantaSleighTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "animal1.png", 4, 4);
-        this.mCloudTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBitmapTextureAtlas, this, "bubble.png");
-        this.mSunTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBitmapTextureAtlas, this, mSunFileName);
+        this.mSantaDonkeyTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, getActivity(), mSantaDonkeyFileName, 6, 3); //col/row
+        this.mSantaWalkingTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, getActivity(), "SantaWalking.png", 3, 2);
+        this.mSnowmanTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, getActivity(), "CoolCat.png", 4, 4);
+        this.mSantaSleighTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, getActivity(), "animal1.png", 4, 4);
+        this.mCloudTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBitmapTextureAtlas, getActivity(), "bubble.png");
+        this.mSunTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBitmapTextureAtlas, getActivity(), mSunFileName);
 //        this.mTwitterTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBitmapTextureAtlas, this, "Feces.png");
 //        this.mCharacterTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBitmapTextureAtlas, this, "messi4.png");
 
@@ -266,7 +302,7 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
 
 
         FontFactory.setAssetBasePath("font/");
-        this.mPlokFont = FontFactory.createFromAsset(this.getFontManager(), this.getTextureManager(), 512, 512, TextureOptions.BILINEAR, this.getAssets(), "Plok.ttf", 52f, false, Color.BLACK_ABGR_PACKED_INT);
+        this.mPlokFont = FontFactory.createFromAsset(this.getFontManager(), this.getTextureManager(), 512, 512, TextureOptions.BILINEAR, getActivity().getAssets(), "Plok.ttf", 52f, false, Color.BLACK_ABGR_PACKED_INT);
         this.mPlokFont.load();
         final ITexture fontTexture = new BitmapTextureAtlas(this.getTextureManager(), 256, 256, TextureOptions.BILINEAR);
         this.mFont1 = new Font(this.getFontManager(), fontTexture, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), 42, false, Color.BLUE);
@@ -279,7 +315,7 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
 
         SoundFactory.setAssetBasePath("mfx/");
         try {
-            this.mExplosionSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "munch.ogg");
+            this.mExplosionSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), getActivity(), "munch.ogg");
         } catch (final IOException e) {
             Debug.e(e);
         }
@@ -313,12 +349,16 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
     @Override
     public Scene onCreateScene() {
         this.mEngine.registerUpdateHandler(new FPSLogger());
-        initAnimationModels();
+
         initializeWordsArray();
-        initCurrentAnimation(0);
+        //initCurrentAnimation(0);
         scene = new Scene();
         scene.getBackground().setColor(Color.TRANSPARENT);
+        scene.setTouchAreaBindingOnActionDownEnabled(true);
+        doSome();
 
+        if(true)
+            return scene;
 
         mAnimatedPress = new AnimatedSprite(CAMERA_WIDTH * 0.33f, CAMERA_HEIGHT * 0.33f, CAMERA_WIDTH / 4, CAMERA_HEIGHT / 4, this.mAnimatedPressTiledTextureRegion, this.getVertexBufferObjectManager()) {
             @Override
@@ -409,64 +449,45 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
     int lastTileRow;
     int dd = 0;
 
-    class BaseAnimationModel {
+    class BaseAnimationModel extends BaseSpriteModel{
 
-
-        public TiledTextureRegion getTiledTextureRegion() {
-            return tiledTextureRegion;
-        }
-
+        @Getter
+        @Setter
+        long frameDuration;
+        @Getter
+        @Setter
+        int frameCount;
+        @Getter
+        @Setter
         TiledTextureRegion tiledTextureRegion;
+        @Getter
+        @Setter
+        int startIndex, stopIndex;
 
-        public int getStartIndex() {
-            return startIndex;
-        }
-
-        int startIndex;
-
-        public int getStopIndex() {
-            return stopIndex;
-        }
-
-        int stopIndex;
-
-        public long[] getAnimationArrayFrames() {
-            return animationArrayFrames;
-        }
-
+        @Getter
+        @Setter
+        int row, col;
+        @Getter
+        @Setter
         long[] animationArrayFrames;
 
-        public long getFrameDuration() {
-            return frameDuration;
-        }
-
-        public void setFrameDuration(long frameDuration) {
-            this.frameDuration = frameDuration;
-        }
-
-        long frameDuration;
-
-        int frameCount;
-
-        public int getFrameCount() {
-            return frameCount;
-        }
-
-        public void setFrameCount(int frameCount) {
-            this.frameCount = frameCount;
-        }
 
 
-        public BaseAnimationModel(TiledTextureRegion tiledTextureRegion, long[] animationArrayFrames, int startIndex, int stopIndex) {
+
+      /*  public BaseAnimationModel(TiledTextureRegion tiledTextureRegion, long[] animationArrayFrames, int row, int col, int startIndex, int stopIndex) {
             // this.animatedSprite=animatedSprite;
             this.tiledTextureRegion = tiledTextureRegion;
+            this.row = row;
+            this.col = col;
             this.startIndex = startIndex;
             this.stopIndex = stopIndex;
             this.animationArrayFrames = animationArrayFrames;
-        }
+        }*/
 
-        public BaseAnimationModel(TiledTextureRegion tiledTextureRegion, long pFrameDuration, int pFrameCount) {
-            this.tiledTextureRegion = tiledTextureRegion;
+        public BaseAnimationModel(String fileName, int col, int row, long pFrameDuration, int pFrameCount) {
+            this.fileName = fileName;
+            this.col = col;
+            this.row = row;
             this.frameDuration = pFrameDuration;
             this.frameCount = pFrameCount;
 
@@ -476,11 +497,18 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
     }
 
     class BaseSpriteModel {
+        @Getter
+        @Setter
+        String fileName;
 
+        @Getter
+        @Setter
         TextureRegion textureRegion;
+        public BaseSpriteModel() {
 
-        public BaseSpriteModel(TextureRegion pTextureRegion) {
-            this.textureRegion = pTextureRegion;
+        }
+        public BaseSpriteModel(String fileName) {
+            this.fileName=fileName;
 
         }
 

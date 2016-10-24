@@ -84,7 +84,7 @@ public class SpriteExample extends SimpleBaseGameActivity {
 
     @Override
     public void onCreateResources() throws IOException {
-        this.mFaceTexture = new AssetBitmapTexture(this.getTextureManager(), this.getAssets(), "gfx/face_box.png");
+        this.mFaceTexture = new AssetBitmapTexture(this.getTextureManager(), getActivity().getAssets(), "gfx/face_box.png");
         this.mFaceTextureRegion = TextureRegionFactory.extractFromTexture(this.mFaceTexture);
         this.mFaceTexture.load();
     }

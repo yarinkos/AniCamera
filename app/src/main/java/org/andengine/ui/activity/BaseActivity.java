@@ -52,12 +52,12 @@ public abstract class BaseActivity extends PlayerActivity {
 
 	public void toastOnUiThread(final CharSequence pText, final int pDuration) {
 		if (ActivityUtils.isOnUiThread()) {
-			Toast.makeText(BaseActivity.this, pText, pDuration).show();
+			Toast.makeText(getActivity(), pText, pDuration).show();
 		} else {
-			this.runOnUiThread(new Runnable() {
+			getActivity().runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					Toast.makeText(BaseActivity.this, pText, pDuration).show();
+					Toast.makeText(getActivity(), pText, pDuration).show();
 				}
 			});
 		}
@@ -65,12 +65,12 @@ public abstract class BaseActivity extends PlayerActivity {
 
 	@Deprecated
 	public void showDialogOnUiThread(final int pDialogID) {
-		DialogUtils.showDialogOnUiThread(this, pDialogID);
+		DialogUtils.showDialogOnUiThread(getActivity(), pDialogID);
 	}
 
 	@Deprecated
 	public void showDialogOnUiThread(final int pDialogID, final Bundle pBundle) {
-		DialogUtils.showDialogOnUiThread(this, pDialogID, pBundle);
+		DialogUtils.showDialogOnUiThread(getActivity(), pDialogID, pBundle);
 	}
 
 	/**
@@ -101,7 +101,7 @@ public abstract class BaseActivity extends PlayerActivity {
 	 * @param pExceptionCallback
 	 */
 	protected <T> void doAsync(final int pTitleResourceID, final int pMessageResourceID, final Callable<T> pCallable, final Callback<T> pCallback, final Callback<Exception> pExceptionCallback) {
-		ActivityUtils.doAsync(this, pTitleResourceID, pMessageResourceID, pCallable, pCallback, pExceptionCallback);
+		ActivityUtils.doAsync(getActivity(), pTitleResourceID, pMessageResourceID, pCallable, pCallback, pExceptionCallback);
 	}
 
 	/**
@@ -132,7 +132,7 @@ public abstract class BaseActivity extends PlayerActivity {
 	 * @param pExceptionCallback
 	 */
 	protected <T> void doProgressAsync(final int pTitleResourceID, final int pIconResourceID, final ProgressCallable<T> pCallable, final Callback<T> pCallback, final Callback<Exception> pExceptionCallback) {
-		ActivityUtils.doProgressAsync(this, pTitleResourceID, pIconResourceID, pCallable, pCallback, pExceptionCallback);
+		ActivityUtils.doProgressAsync(getActivity(), pTitleResourceID, pIconResourceID, pCallable, pCallback, pExceptionCallback);
 	}
 
 	/**
@@ -148,7 +148,7 @@ public abstract class BaseActivity extends PlayerActivity {
 	 * @param pExceptionCallback
 	 */
 	protected <T> void doAsync(final int pTitleResourceID, final int pMessageResourceID, final AsyncCallable<T> pAsyncCallable, final Callback<T> pCallback, final Callback<Exception> pExceptionCallback) {
-		ActivityUtils.doAsync(this, pTitleResourceID, pMessageResourceID, pAsyncCallable, pCallback, pExceptionCallback);
+		ActivityUtils.doAsync(getActivity(), pTitleResourceID, pMessageResourceID, pAsyncCallable, pCallback, pExceptionCallback);
 	}
 
 	// ===========================================================

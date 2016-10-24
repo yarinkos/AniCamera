@@ -1,3 +1,4 @@
+/*
 package org.andengine.ui.activity;
 
 import org.andengine.entity.scene.Scene;
@@ -6,12 +7,14 @@ import org.andengine.util.call.Callback;
 import org.andengine.util.progress.IProgressListener;
 import org.andengine.util.progress.ProgressCallable;
 
+*/
 /**
  * (c) 2011 Zynga Inc.
  *
  * @author Nicolas Gramlich <ngramlich@zynga.com>
  * @since 01:24:18 - 03.12.2011
- */
+ *//*
+
 public abstract class SimpleAsyncGameActivity extends BaseGameActivity {
 	// ===========================================================
 	// Constants
@@ -56,7 +59,9 @@ public abstract class SimpleAsyncGameActivity extends BaseGameActivity {
 				}, new Callback<Void>() {
 					@Override
 					public void onCallback(final Void pCallbackValue) {
-						/* Nothing. */
+						*/
+/* Nothing. *//*
+
 					}
 				});
 			}
@@ -82,7 +87,9 @@ public abstract class SimpleAsyncGameActivity extends BaseGameActivity {
 				}, new Callback<Void>() {
 					@Override
 					public void onCallback(final Void pCallbackValue) {
-						/* Nothing. */
+						*/
+/* Nothing. *//*
+
 					}
 				});
 			}
@@ -108,7 +115,9 @@ public abstract class SimpleAsyncGameActivity extends BaseGameActivity {
 				}, new Callback<Void>() {
 					@Override
 					public void onCallback(final Void pCallbackValue) {
-						/* Nothing. */
+						*/
+/* Nothing. *//*
+
 					}
 				});
 			}
@@ -123,3 +132,4 @@ public abstract class SimpleAsyncGameActivity extends BaseGameActivity {
 	// Inner and Anonymous Classes
 	// ===========================================================
 }
+*/

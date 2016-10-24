@@ -1,17 +1,26 @@
 package com.example.yarinkossover.snapapp;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.yarinkossover.snapapp.scenes.BaseSceneActivity;
-import com.example.yarinkossover.snapapp.scenes.FaceAddSceneActivity;
+//import com.example.yarinkossover.snapapp.scenes.FaceAddSceneActivity;
 import com.example.yarinkossover.snapapp.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -22,13 +31,60 @@ public class GuiActivity extends BaseSceneActivity {
     private String TAG = this.getClass().getSimpleName();
     private boolean DEBUG = true;
 
-    private Button button;
+    private Button button, button1;
     private FloatingActionButton captureButton;
     StateManager stateManager;
 
     View guiView;
+    LayoutInflater inflater;
 
     @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        inflater = (LayoutInflater) getActivity().getSystemService(getActivity().LAYOUT_INFLATER_SERVICE);
+
+        //  v = inflater.inflate(R.layout.main_activity, null);
+        guiView = inflater.inflate(R.layout.main_activity, null);
+        // guiView.setLayoutParams(Utils.createSurfaceViewLayoutParams());
+        ((ViewGroup) view).addView(guiView, Utils.createSurfaceViewLayoutParams());
+
+
+        captureButton = (FloatingActionButton) guiView.findViewById(R.id.record_button);
+        captureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onCaptureClick();
+            }
+        });
+        button = (Button) guiView.findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+                                      @Override
+                                      public void onClick(View v) {
+                                          clickButton();
+                                      }
+                                  }
+
+        );
+        button1 = (Button) guiView.findViewById(R.id.button1);
+        button1.setOnClickListener(new View.OnClickListener() {
+                                       @Override
+                                       public void onClick(View v) {
+                                           startAndEngine();
+                                           //     myViewPager.bringToFront();
+                                           //  guiView.setVisibility(View.INVISIBLE);
+                                       }
+                                   }
+
+        );
+        stateManager = new StateManager();
+        stateManager.initState();
+        // startAndEngine();
+
+
+    }
+
+
+    /*@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -48,28 +104,30 @@ public class GuiActivity extends BaseSceneActivity {
         stateManager.initState();
 
 
-    }
+    }*/
 
-    private void clickButton(){
+    private void clickButton() {
+
         this.doSome();
     }
+
 
     /**
      * The capture button controls all user interaction. When recording, the button click
      * stops recording, releases {@link android.media.MediaRecorder} and {@link android.hardware.Camera}. When not recording,
      * it prepares the {@link android.media.MediaRecorder} and starts recording.
-     *
-     * @param view the view generating the event.
      */
-    public void onCaptureClick(View view) {
+    public void onCaptureClick() {
         if (DEBUG) {
             Log.d(TAG, "videoView Sizes:" + Utils.printPairs(new Pair("w", videoView.getWidth()), new Pair("h", videoView.getHeight())));
             Log.d(TAG, "cameraView Sizes:" + Utils.printPairs(new Pair("w", mPreview.getWidth()), new Pair("h", mPreview.getHeight())));
         }
         if (mPreview.isRecording()) {
+            Log.d(TAG, "Stop recording and start preview");
             stateManager.stopRecordingVideo();
         } else {
             // BEGIN_INCLUDE(prepare_start_media_recorder)
+            Log.d(TAG, "Start recording ");
             stateManager.startRecordingVideo();
 
             // END_INCLUDE(prepare_start_media_recorder)
@@ -105,7 +163,7 @@ public class GuiActivity extends BaseSceneActivity {
         public void stopRecordingVideo() {
             mPreview.stopRecord();
             // inform the user that recording has stopped
-        //    setCaptureButtonText("Capture");
+            //    setCaptureButtonText("Capture");
             // END_INCLUDE(stop_release_media_recorder)
             mPreview.setVisibility(View.GONE);
             videoView.setVisibility(View.VISIBLE);
@@ -143,16 +201,18 @@ public class GuiActivity extends BaseSceneActivity {
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result) {
-                GuiActivity.this.finish();
+                getActivity().finish();
             }
             // inform the user that recording has started
-           // setCaptureButtonText("Stop");
+            // setCaptureButtonText("Stop");
 
         }
     }
+    //todo handle it on the activity level
 
-    @Override
     public void onBackPressed() {
         stateManager.showCamera();
     }
+
+
 }

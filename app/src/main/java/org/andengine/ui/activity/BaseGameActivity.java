@@ -33,12 +33,20 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.PixelFormat;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout.LayoutParams;
+
+import com.example.yarinkossover.snapapp.utils.Utils;
+import com.example.yarinkossover.snapapp.views.CameraTextureView;
 
 /**
  * (c) 2010 Nicolas Gramlich
@@ -71,7 +79,30 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
     // Constructors
     // ===========================================================
 
+
     @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        startAndEngine();
+
+
+    }
+
+
+    public void startAndEngine() {
+        if (BuildConfig.DEBUG) {
+            Debug.d(this.getClass().getSimpleName() + ".onCreate" + " @(Thread: '" + Thread.currentThread().getName() + "')");
+        }
+        this.mGamePaused = true;
+
+        this.mEngine = this.onCreateEngine(this.onCreateEngineOptions());
+        this.mEngine.startUpdateThread();
+
+        this.applyEngineOptions();
+        this.onSetContentView(this.getView());
+    }
+
+    /*@Override //todo remove
     protected void onCreate(final Bundle pSavedInstanceState) {
         if (BuildConfig.DEBUG) {
             Debug.d(this.getClass().getSimpleName() + ".onCreate" + " @(Thread: '" + Thread.currentThread().getName() + "')");
@@ -87,7 +118,7 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
         this.applyEngineOptions();
 
         this.onSetContentView();
-    }
+    }*/
 
     @Override
     public Engine onCreateEngine(final EngineOptions pEngineOptions) {
@@ -103,7 +134,7 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
         if (this.mGameCreated) {
             this.onReloadResources();
 
-            if (this.mGamePaused && this.mGameCreated && !this.isFinishing()) {
+            if (this.mGamePaused && this.mGameCreated && !this.isRemoving()) {
                 this.onResumeGame();
             }
         } else {
@@ -206,13 +237,12 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
     }
 
     @Override
-    protected synchronized void onResume() {
+    public synchronized void onResume() {
         if (BuildConfig.DEBUG) {
             Debug.d(this.getClass().getSimpleName() + ".onResume" + " @(Thread: '" + Thread.currentThread().getName() + "')");
         }
-
         super.onResume();
-
+        if (!isGameLoaded()) return;
         this.acquireWakeLock();
         this.mRenderSurfaceView.onResume();
     }
@@ -227,15 +257,15 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
 
         this.mGamePaused = false;
     }
-
-    @Override
+    //todo how to use it in fragments?
+    /*@Override
     public synchronized void onWindowFocusChanged(final boolean pHasWindowFocus) {
         super.onWindowFocusChanged(pHasWindowFocus);
 
         if (pHasWindowFocus && this.mGamePaused && this.mGameCreated && !this.isFinishing()) {
             this.onResumeGame();
         }
-    }
+    }*/
 
     @Override
     public void onReloadResources() {
@@ -247,13 +277,14 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         if (BuildConfig.DEBUG) {
             Debug.d(this.getClass().getSimpleName() + ".onPause" + " @(Thread: '" + Thread.currentThread().getName() + "')");
         }
 
         super.onPause();
 
+        if (!isGameLoaded()) return;
         this.mRenderSurfaceView.onPause();
         this.releaseWakeLock();
 
@@ -274,7 +305,7 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         if (BuildConfig.DEBUG) {
             Debug.d(this.getClass().getSimpleName() + ".onDestroy" + " @(Thread: '" + Thread.currentThread().getName() + "')");
         }
@@ -371,27 +402,27 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
     // ===========================================================
 
     private void callGameResumedOnUIThread() {
-        BaseGameActivity.this.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (!BaseGameActivity.this.isFinishing()) {
+                if (!BaseGameActivity.this.isRemoving()) {
                     BaseGameActivity.this.onResumeGame();
                 }
             }
         });
     }
 
-    protected void onSetContentView() {
-        this.mRenderSurfaceView = new RenderSurfaceView(this);
+    protected void onSetContentView(View rootView) {
+        this.mRenderSurfaceView = new RenderSurfaceView(getActivity());
         this.mRenderSurfaceView.setZOrderOnTop(true);
         this.mRenderSurfaceView.setEGLConfigChooser(4, 4, 4, 4, 16, 0);
         this.mRenderSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
         this.mRenderSurfaceView.setRenderer(this.mEngine, this);
-       // this.mRenderSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        // this.mRenderSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         /*this.mRenderSurfaceView.setZOrderMediaOverlay(true);
         this.mRenderSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         this.mRenderSurfaceView.bringToFront();*/
-        this.addContentView(this.mRenderSurfaceView, BaseGameActivity.createSurfaceViewLayoutParams()); //todo handle this with all other views
+        ((ViewGroup) rootView).addView(this.mRenderSurfaceView, BaseGameActivity.createSurfaceViewLayoutParams()); //todo handle this with all other views
     }
 
    /* protected void onSetContentView() {
@@ -426,9 +457,9 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
 
     private void acquireWakeLock(final WakeLockOptions pWakeLockOptions) {
         if (pWakeLockOptions == WakeLockOptions.SCREEN_ON) {
-            ActivityUtils.keepScreenOn(this);
+            ActivityUtils.keepScreenOn(getActivity());
         } else {
-            final PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
+            final PowerManager pm = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
             this.mWakeLock = pm.newWakeLock(pWakeLockOptions.getFlag() | PowerManager.ON_AFTER_RELEASE, Constants.DEBUGTAG);
             try {
                 this.mWakeLock.acquire();
@@ -452,30 +483,30 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
         }
 
         if (engineOptions.getAudioOptions().needsMusic() || engineOptions.getAudioOptions().needsSound()) {
-            this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+            getActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
         }
 
         switch (engineOptions.getScreenOrientation()) {
             case LANDSCAPE_FIXED:
-                this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 break;
             case LANDSCAPE_SENSOR:
                 if (SystemUtils.SDK_VERSION_GINGERBREAD_OR_LATER) {
-                    this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
                 } else {
                     Debug.w(ScreenOrientation.class.getSimpleName() + "." + ScreenOrientation.LANDSCAPE_SENSOR + " is not supported on this device. Falling back to " + ScreenOrientation.class.getSimpleName() + "." + ScreenOrientation.LANDSCAPE_FIXED);
-                    this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 }
                 break;
             case PORTRAIT_FIXED:
-                this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                 break;
             case PORTRAIT_SENSOR:
                 if (SystemUtils.SDK_VERSION_GINGERBREAD_OR_LATER) {
-                    this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
                 } else {
                     Debug.w(ScreenOrientation.class.getSimpleName() + "." + ScreenOrientation.PORTRAIT_SENSOR + " is not supported on this device. Falling back to " + ScreenOrientation.class.getSimpleName() + "." + ScreenOrientation.PORTRAIT_FIXED);
-                    this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                 }
                 break;
         }
@@ -488,63 +519,63 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
     }
 
     protected void enableVibrator() {
-        this.mEngine.enableVibrator(this);
+        this.mEngine.enableVibrator(getActivity());
     }
 
     /**
      * @see {@link Engine#enableLocationSensor(Context, ILocationListener, LocationSensorOptions)}
      */
     protected void enableLocationSensor(final ILocationListener pLocationListener, final LocationSensorOptions pLocationSensorOptions) {
-        this.mEngine.enableLocationSensor(this, pLocationListener, pLocationSensorOptions);
+        this.mEngine.enableLocationSensor(getActivity(), pLocationListener, pLocationSensorOptions);
     }
 
     /**
      * @see {@link Engine#disableLocationSensor(Context)}
      */
     protected void disableLocationSensor() {
-        this.mEngine.disableLocationSensor(this);
+        this.mEngine.disableLocationSensor(getActivity());
     }
 
     /**
      * @see {@link Engine#enableAccelerationSensor(Context, IAccelerationListener)}
      */
     protected boolean enableAccelerationSensor(final IAccelerationListener pAccelerationListener) {
-        return this.mEngine.enableAccelerationSensor(this, pAccelerationListener);
+        return this.mEngine.enableAccelerationSensor(getActivity(), pAccelerationListener);
     }
 
     /**
      * @see {@link Engine#enableAccelerationSensor(Context, IAccelerationListener, AccelerationSensorOptions)}
      */
     protected boolean enableAccelerationSensor(final IAccelerationListener pAccelerationListener, final AccelerationSensorOptions pAccelerationSensorOptions) {
-        return this.mEngine.enableAccelerationSensor(this, pAccelerationListener, pAccelerationSensorOptions);
+        return this.mEngine.enableAccelerationSensor(getActivity(), pAccelerationListener, pAccelerationSensorOptions);
     }
 
     /**
      * @see {@link Engine#disableAccelerationSensor(Context)}
      */
     protected boolean disableAccelerationSensor() {
-        return this.mEngine.disableAccelerationSensor(this);
+        return this.mEngine.disableAccelerationSensor(getActivity());
     }
 
     /**
      * @see {@link Engine#enableOrientationSensor(Context, IOrientationListener)}
      */
     protected boolean enableOrientationSensor(final IOrientationListener pOrientationListener) {
-        return this.mEngine.enableOrientationSensor(this, pOrientationListener);
+        return this.mEngine.enableOrientationSensor(getActivity(), pOrientationListener);
     }
 
     /**
      * @see {@link Engine#enableOrientationSensor(Context, IOrientationListener, OrientationSensorOptions)}
      */
     protected boolean enableOrientationSensor(final IOrientationListener pOrientationListener, final OrientationSensorOptions pLocationSensorOptions) {
-        return this.mEngine.enableOrientationSensor(this, pOrientationListener, pLocationSensorOptions);
+        return this.mEngine.enableOrientationSensor(getActivity(), pOrientationListener, pLocationSensorOptions);
     }
 
     /**
      * @see {@link Engine#disableOrientationSensor(Context)}
      */
     protected boolean disableOrientationSensor() {
-        return this.mEngine.disableOrientationSensor(this);
+        return this.mEngine.disableOrientationSensor(getActivity());
     }
 
     // ===========================================================
