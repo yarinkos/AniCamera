@@ -165,8 +165,6 @@ public class GuiActivity extends BaseSceneActivity {
             // inform the user that recording has stopped
             //    setCaptureButtonText("Capture");
             // END_INCLUDE(stop_release_media_recorder)
-            mPreview.setVisibility(View.GONE);
-            videoView.setVisibility(View.VISIBLE);
             showVideo();
         }
 
@@ -182,6 +180,8 @@ public class GuiActivity extends BaseSceneActivity {
 
         @Override
         public void showVideo() {
+            mPreview.setVisibility(View.GONE);
+            videoView.setVisibility(View.VISIBLE);
             videoView.start();
         }
     }

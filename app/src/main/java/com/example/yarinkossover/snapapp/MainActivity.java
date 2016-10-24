@@ -81,11 +81,13 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onBackPressed() {
         fragment.onBackPressed();
+        mViewPager.setCurrentItem(0);
     }
 
 
     public  void testClick(){
         mViewPager.setCurrentItem(0);
+        fragment.stateManager.showVideo();
     }
 
     /**
