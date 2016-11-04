@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:background="@color/transparent"
@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:padding="3dip"
         android:layout_alignParentLeft="true"
+        android:layout_gravity="left"
         android:background="@color/transparent"
         android:layout_marginRight="5dip">
 
@@ -23,50 +24,45 @@
 
     </LinearLayout>
 
+
+
+
     <!-- Title Of Song-->
-    <TextView
-        android:id="@+id/title"
+    <LinearLayout android:id="@+id/details"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/thumbnail"
-        android:layout_toRightOf="@+id/thumbnail"
-        android:text="Rihanna Love the way lie"
-        android:textColor="#040404"
-        android:typeface="sans"
-        android:textSize="15dip"
-        android:textStyle="bold"/>
+        android:padding="3dip"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:background="@color/transparent"
+        android:layout_marginLeft="25dip">
 
-    <!-- Artist Name -->
-    <TextView
-        android:id="@+id/artist"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/title"
-        android:textColor="#343434"
-        android:textSize="10dip"
-        android:layout_marginTop="1dip"
-        android:layout_toRightOf="@+id/thumbnail"
-        android:text="Just gona stand there and ..." />
+        <TextView
+            android:id="@+id/user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Rihanna"
+            android:textColor="#040404"
+            android:typeface="sans"
+            android:textSize="15dip"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/when"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/user"
+            android:textColor="#343434"
+            android:textSize="10dip"
+            android:layout_marginTop="1dip"
+            android:text="2 min ago" />
 
-    <!-- Rightend Duration -->
-    <TextView
-        android:id="@+id/duration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/title"
-        android:gravity="right"
-        android:text="5:45"
-        android:layout_marginRight="5dip"
-        android:textSize="10dip"
-        android:textColor="#10bcc9"
-        android:textStyle="bold"/>
+    </LinearLayout>
 
-    <!-- Rightend Arrow -->
-  <!--  <ImageView android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/arrow"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"/>-->
 
-</RelativeLayout>
+
+
+
+
+</LinearLayout>

@@ -15,9 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.example.yarinkossover.snapapp.model.Post;
+import com.example.yarinkossover.snapapp.model.VideoPost;
 import com.example.yarinkossover.snapapp.scenes.BaseSceneActivity;
 //import com.example.yarinkossover.snapapp.scenes.FaceAddSceneActivity;
 import com.example.yarinkossover.snapapp.utils.Utils;
+import com.example.yarinkossover.snapapp.views.SimpleDrawingView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,16 +39,20 @@ public class GuiActivity extends BaseSceneActivity {
     StateManager stateManager;
 
     View guiView;
+    SimpleDrawingView simpleDrawingView;
     LayoutInflater inflater;
+
+    Boolean displayPostsOfOthers = false;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         inflater = (LayoutInflater) getActivity().getSystemService(getActivity().LAYOUT_INFLATER_SERVICE);
-
         //  v = inflater.inflate(R.layout.main_activity, null);
+        simpleDrawingView = new SimpleDrawingView(getActivity(), null);
         guiView = inflater.inflate(R.layout.main_activity, null);
         // guiView.setLayoutParams(Utils.createSurfaceViewLayoutParams());
+        ((ViewGroup) view).addView(simpleDrawingView, Utils.createSurfaceViewLayoutParams());
         ((ViewGroup) view).addView(guiView, Utils.createSurfaceViewLayoutParams());
 
 
@@ -57,6 +64,7 @@ public class GuiActivity extends BaseSceneActivity {
             }
         });
         button = (Button) guiView.findViewById(R.id.button);
+
         button.setOnClickListener(new View.OnClickListener() {
                                       @Override
                                       public void onClick(View v) {
@@ -69,7 +77,7 @@ public class GuiActivity extends BaseSceneActivity {
         button1.setOnClickListener(new View.OnClickListener() {
                                        @Override
                                        public void onClick(View v) {
-                                           startAndEngine();
+
                                            //     myViewPager.bringToFront();
                                            //  guiView.setVisibility(View.INVISIBLE);
                                        }
@@ -106,8 +114,16 @@ public class GuiActivity extends BaseSceneActivity {
 
     }*/
 
-    private void clickButton() {
 
+    public void setPostToPlay(Post post) {
+        if (post instanceof VideoPost) videoView.setVideoURI(((VideoPost) post).getVideoURI());
+        displayPostsOfOthers = true;
+        setDemoPost();
+        stateManager.showVideo();
+        stateManager.startAnimation();
+    }
+
+    private void clickButton() {
         this.doSome();
     }
 
@@ -165,8 +181,6 @@ public class GuiActivity extends BaseSceneActivity {
             // inform the user that recording has stopped
             //    setCaptureButtonText("Capture");
             // END_INCLUDE(stop_release_media_recorder)
-            mPreview.setVisibility(View.GONE);
-            videoView.setVisibility(View.VISIBLE);
             showVideo();
         }
 
@@ -182,7 +196,14 @@ public class GuiActivity extends BaseSceneActivity {
 
         @Override
         public void showVideo() {
+            mPreview.setVisibility(View.GONE);
+            videoView.setVisibility(View.VISIBLE);
             videoView.start();
+        }
+
+        @Override
+        public void startAnimation() {
+            doSome();
         }
     }
 

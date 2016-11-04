@@ -25,4 +25,6 @@ public class VideoViewWrapper extends VideoView {
         Uri vidUri = Uri.parse(videoFile.toString());
         this.setVideoURI(vidUri);
     }
+
+
 }

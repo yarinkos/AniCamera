@@ -24,10 +24,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
+
+import com.example.yarinkossover.snapapp.model.Post;
+import com.example.yarinkossover.snapapp.views.viewpagers.CustomViewPager;
 
 public class MainActivity extends FragmentActivity {
 
@@ -43,7 +47,7 @@ public class MainActivity extends FragmentActivity {
      * The {@link ViewPager} that will display the three primary sections of the app, one at a
      * time.
      */
-     ViewPager mViewPager;
+    CustomViewPager mViewPager;
 
     private static GuiActivity fragment;
     private static FeedFragment feedFragment;
@@ -62,8 +66,9 @@ public class MainActivity extends FragmentActivity {
 
         // Set up the view_pager, attaching the adapter and setting up a listener for when the
         // user swipes between sections.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager = (CustomViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mAppSectionsPagerAdapter);
+
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
@@ -81,11 +86,22 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onBackPressed() {
         fragment.onBackPressed();
+        mViewPager.setCurrentItem(0);
+        mViewPager.setPagingEnabled(!mViewPager.getPagingEnabled());
     }
 
 
-    public  void testClick(){
+    public void playPost(Post post) {
+        //move to the player fragment
         mViewPager.setCurrentItem(0);
+        fragment.setPostToPlay(post);
+    }
+
+    public void disablePaging(){
+        mViewPager.setPagingEnabled(false);
+    }
+    public void enablePaging(){
+        mViewPager.setPagingEnabled(true);
     }
 
     /**
@@ -99,6 +115,11 @@ public class MainActivity extends FragmentActivity {
         }
 
         private static int numOfFragments = 2;
+
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
+        }
 
         @Override
         public Fragment getItem(int i) {
@@ -131,7 +152,6 @@ public class MainActivity extends FragmentActivity {
         public CharSequence getPageTitle(int position) {
             return "Section " + (position + 1);
         }
-
 
 
     }
