@@ -14,7 +14,8 @@
         android:layout_gravity="top"
         android:background="@color/transparent"
         android:gravity="top"
-        android:text="00000" />
+        android:text="00000"
+        android:textSize="48dp"/>
 
     <Button
         android:id="@+id/button1"

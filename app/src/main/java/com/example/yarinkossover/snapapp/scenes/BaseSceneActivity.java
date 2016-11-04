@@ -3,6 +3,10 @@ package com.example.yarinkossover.snapapp.scenes;
 import android.graphics.Typeface;
 import android.util.Log;
 
+import com.example.yarinkossover.snapapp.model.animations.PostAnimationData;
+import com.example.yarinkossover.snapapp.model.animations.SpriteModel;
+import com.example.yarinkossover.snapapp.scenes.modifiers.ModifiersCreators;
+
 import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
@@ -14,6 +18,7 @@ import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
 import org.andengine.entity.modifier.LoopEntityModifier;
 import org.andengine.entity.modifier.LoopEntityModifier.ILoopEntityModifierListener;
@@ -47,8 +52,11 @@ import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.LoopModifier;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -89,33 +97,7 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
     HashMap<String, BaseSpriteModel> baseSpriteModels = new HashMap<>();
 
     private String mSantaDonkeyFileName = "CloudRain.png";
-    private int col = 6;
-    private int row = 3;
-    private long mSantaDonkeyFrameDuration = 125;
-    private int mSantaDonkeyFrameCount = 17;
-    private long[] mSantaDonkeyAnimtedArray = new long[]{125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125};
-    private int mSantaDonkeyfirstTileRow = 0;
-    private int mSantaDonkeylastTileRow = 16;
-
     private String mSunFileName = "sun.png";
-    private long mSunFrameDuration = 1000;
-    private int mSunFrameCount = 1;
-
-
-    private long[] mSantaWalkingAnimtedArray = new long[]{125, 125, 125, 125, 125};
-    private int mSantaWalkingfirstTileRow = 0;
-    private int mSantaWalkinglastTileRow = 4;
-
-    private long[] mSnowmanAnimtedArray = new long[]{125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125};
-    private int mSnowmanfirstTileRow = 0;
-    private int mSnowmanlastTileRow = 13;
-
-    private long[] mSantaSleighAnimtedArray = new long[]{125, 125, 125, 125};
-    private int mSantaSleighfirstTileRow = 8;
-    private int mSantaSleighlastTileRow = 11;
-
-    private Sprite face1;
-    private static Sprite face2, face3, face4;
 
     private static AnimatedSprite mAnimatedPress = null;
 
@@ -126,6 +108,9 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
     private Text text1;
     private Text textNormal;
 
+    @Getter
+    @Setter
+    PostAnimationData postAnimationData;
 
     Scene scene;
     int i = 0;
@@ -142,48 +127,47 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
 // ===========================================================
 
 
+    ModifiersCreators modifiersCreators;
+
+    public void setDemoPost() {
+        postAnimationData = new PostAnimationData();
+        postAnimationData.setSprites(new SpriteModel[]{new SpriteModel("Sun", "1", "2")}); //todo add special id for different paths in PathModifers
+    }
 
     public void doSome() {
-/*
-        mAnimatedPressTiledTextureRegion = mSantaDonkeyTextureRegion;
-        mAnimatedPressAnimtedArray = mSantaDonkeyAnimtedArray;
-        firstTileRow = mSantaDonkeyfirstTileRow;
-        lastTileRow = mSantaDonkeylastTileRow;
-*/
-        createAnimatedSprite("SantaDonkey");
-        createSprite("Sun");
-     /*   animationIndex = animationIndex >= 5 ? 0 : animationIndex;
-        initCurrentAnimation(animationIndex);
 
-        switchAnimatedSprite();
-        if (animationIndex == 0)
-            mAnimatedPress.animate(mSantaDonkeyFrameDuration, mSantaDonkeyFrameCount, true);
-        if (animationIndex == 4) {
-        }//mAnimatedPress.animate(mSantaDonkeyFrameDuration, mSantaDonkeyFrameCount, true);
-        else
-            mAnimatedPress.animate(mAnimatedPressAnimtedArray, firstTileRow, lastTileRow, true);
-        //onStopStartAnimation(mAnimatedPress);
-        animationIndex++;*/
+        //   createAnimatedSprite("SantaDonkey");
+        resetScene();
+        setDemoPost();
+        modifiersCreators = ModifiersCreators.getInstance(CAMERA_WIDTH, CAMERA_HEIGHT);
+        for (SpriteModel spriteModel : postAnimationData.getSprites()) {
+            Sprite s = createSprite(spriteModel.getSpriteName());
+            for (String iEntityModifierId : Arrays.asList(spriteModel.getModifiers())) {
+                s.registerEntityModifier(modifiersCreators.getModifierById(Integer.parseInt(iEntityModifierId)));
+            }
+        }
     }
 
     private void initAnimationModels() {
         baseAnimationModels.put("SantaDonkey", new BaseAnimationModel("CloudRain.png", 6, 3, 125, 17));
-        baseAnimationModels.put("SantaWalking", new BaseAnimationModel("SantaWalking.png", 3, 2, 125,5));
-        baseAnimationModels.put("Snowman", new BaseAnimationModel("CoolCat.png", 4, 4, 125,14));
-        baseAnimationModels.put("SantaSleigh", new BaseAnimationModel("animal1.png", 4, 4, 125,16));
+        baseAnimationModels.put("SantaWalking", new BaseAnimationModel("SantaWalking.png", 3, 2, 125, 5));
+        baseAnimationModels.put("Snowman", new BaseAnimationModel("CoolCat.png", 4, 4, 125, 14));
+        baseAnimationModels.put("SantaSleigh", new BaseAnimationModel("animal1.png", 4, 4, 125, 16));
 
     }
+
     private void initSpriteModels() {
         baseSpriteModels.put("Sun", new BaseSpriteModel("sun.png"));
     }
+
     private AnimatedSprite createAnimatedSprite(String animationKey) {
-        Log.d(TAG,"createAnimatedSprite");
+        Log.d(TAG, "createAnimatedSprite");
         BaseAnimationModel baseAnimationModel = baseAnimationModels.get(animationKey);
         AnimatedSprite animatedSprite = new AnimatedSprite(100, 100, CAMERA_WIDTH / 4, CAMERA_HEIGHT / 4, baseAnimationModel.getTiledTextureRegion(), this.getVertexBufferObjectManager()) {
             @Override
             public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
                 this.setPosition(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
-                Log.d(TAG,"DEBUG");
+                Log.d(TAG, "DEBUG");
                 return true;
             }
         };
@@ -193,9 +177,10 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
 
         return animatedSprite;
     }
+
     private Sprite createSprite(String spriteKey) {
         BaseSpriteModel baseSpriteModel = baseSpriteModels.get(spriteKey);
-        Sprite sprite = new Sprite((CAMERA_WIDTH*5)/6, (CAMERA_HEIGHT*5)/6, CAMERA_WIDTH / 3, CAMERA_HEIGHT / 3, baseSpriteModel.getTextureRegion(), this.getVertexBufferObjectManager()) {
+        Sprite sprite = new Sprite((CAMERA_WIDTH * 5) / 6, (CAMERA_HEIGHT * 5) / 6, CAMERA_WIDTH / 3, CAMERA_HEIGHT / 3, baseSpriteModel.getTextureRegion(), this.getVertexBufferObjectManager()) {
             @Override
             public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
                 this.setPosition(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
@@ -209,7 +194,22 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
         return sprite;
     }
 
-    int animationIndex = 0;
+    public void resetScene() {
+        clearSceneFromChildren();
+    }
+
+    public void clearSceneFromChildren() {
+        for (int i = 0; i < scene.getChildCount(); i++) {
+            IEntity entity = scene.getChildByIndex(i);
+            scene.unregisterTouchArea(entity);
+            entity.detachSelf();
+            entity.dispose();
+            entity = null;
+        }
+        scene.detachChildren();
+        System.gc();
+
+    }
 
     private void switchAnimatedSprite() {
 
@@ -357,7 +357,7 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
         scene.setTouchAreaBindingOnActionDownEnabled(true);
         doSome();
 
-        if(true)
+        if (true)
             return scene;
 
         mAnimatedPress = new AnimatedSprite(CAMERA_WIDTH * 0.33f, CAMERA_HEIGHT * 0.33f, CAMERA_WIDTH / 4, CAMERA_HEIGHT / 4, this.mAnimatedPressTiledTextureRegion, this.getVertexBufferObjectManager()) {
@@ -449,7 +449,7 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
     int lastTileRow;
     int dd = 0;
 
-    class BaseAnimationModel extends BaseSpriteModel{
+    class BaseAnimationModel extends BaseSpriteModel {
 
         @Getter
         @Setter
@@ -504,11 +504,13 @@ public class BaseSceneActivity extends SimpleBaseGameActivity {
         @Getter
         @Setter
         TextureRegion textureRegion;
+
         public BaseSpriteModel() {
 
         }
+
         public BaseSpriteModel(String fileName) {
-            this.fileName=fileName;
+            this.fileName = fileName;
 
         }
 

@@ -18,5 +18,7 @@ public interface IState {
 
     void showVideo();
 
+    void startAnimation();
+
 
 }
