@@ -1,12 +1,8 @@
 package com.example.yarinkossover.snapapp;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -21,9 +17,8 @@ import com.example.yarinkossover.snapapp.scenes.BaseSceneActivity;
 //import com.example.yarinkossover.snapapp.scenes.FaceAddSceneActivity;
 import com.example.yarinkossover.snapapp.utils.Utils;
 import com.example.yarinkossover.snapapp.views.SimpleDrawingView;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.example.yarinkossover.snapapp.views.smallviews.Circle;
+import com.example.yarinkossover.snapapp.views.smallviews.CircleAngleAnimation;
 
 
 /**
@@ -34,15 +29,20 @@ public class GuiActivity extends BaseSceneActivity {
     private String TAG = this.getClass().getSimpleName();
     private boolean DEBUG = true;
 
-    private Button button, button1;
+    private Button reconfigScene, painter;
     private FloatingActionButton captureButton;
     StateManager stateManager;
 
-    View guiView;
+    View controllerView;
     SimpleDrawingView simpleDrawingView;
     LayoutInflater inflater;
+    Circle circle;
+    CircleAngleAnimation animation;
 
     Boolean displayPostsOfOthers = false;
+
+    public GuiActivity() {
+    }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -50,36 +50,70 @@ public class GuiActivity extends BaseSceneActivity {
         inflater = (LayoutInflater) getActivity().getSystemService(getActivity().LAYOUT_INFLATER_SERVICE);
         //  v = inflater.inflate(R.layout.main_activity, null);
         simpleDrawingView = new SimpleDrawingView(getActivity(), null);
-        guiView = inflater.inflate(R.layout.main_activity, null);
-        // guiView.setLayoutParams(Utils.createSurfaceViewLayoutParams());
+        controllerView = inflater.inflate(R.layout.controllers_view, null);
+        // controllerView.setLayoutParams(Utils.createSurfaceViewLayoutParams());
         ((ViewGroup) view).addView(simpleDrawingView, Utils.createSurfaceViewLayoutParams());
-        ((ViewGroup) view).addView(guiView, Utils.createSurfaceViewLayoutParams());
+        ((ViewGroup) view).addView(controllerView, Utils.createSurfaceViewLayoutParams());
+
+        circle = (Circle) controllerView.findViewById(R.id.record_button);
+        //circle.setRect(300);
+        animation = new CircleAngleAnimation(circle, 360);
+        animation.setDuration(10000);
 
 
-        captureButton = (FloatingActionButton) guiView.findViewById(R.id.record_button);
-        captureButton.setOnClickListener(new View.OnClickListener() {
+        //captureButton = (FloatingActionButton) controllerView.findViewById(R.id.record_button);
+        View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onCaptureClick();
+                onRecordingVideo();
+            }
+        };
+        circle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                OnCaptureImage();
             }
         });
-        button = (Button) guiView.findViewById(R.id.button);
+        circle.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                onRecordingVideo();
+                return true;
+            }
+        });
+        View.OnTouchListener recordTouchListener = new View.OnTouchListener() {
 
-        button.setOnClickListener(new View.OnClickListener() {
-                                      @Override
-                                      public void onClick(View v) {
-                                          clickButton();
-                                      }
-                                  }
+            @Override
+            public boolean onTouch(View pView, MotionEvent pEvent) {
+                // pView.onTouchEvent(pEvent);
+                // We're only interested in when the button is released.
+                if (pEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if (mPreview.isRecording())
+                        onRecordingVideo();
+                }
+                return false;
+            }
+        };
+
+        circle.setOnTouchListener(recordTouchListener);
+        // circle.setOnClickListener(onClickListener);
+        reconfigScene = (Button) controllerView.findViewById(R.id.reconfig_scene);
+
+        reconfigScene.setOnClickListener(new View.OnClickListener() {
+                                             @Override
+                                             public void onClick(View v) {
+                                                 reConfigScene();
+                                             }
+                                         }
 
         );
-        button1 = (Button) guiView.findViewById(R.id.button1);
-        button1.setOnClickListener(new View.OnClickListener() {
+        painter = (Button) controllerView.findViewById(R.id.painter);
+        painter.setOnClickListener(new View.OnClickListener() {
                                        @Override
                                        public void onClick(View v) {
 
                                            //     myViewPager.bringToFront();
-                                           //  guiView.setVisibility(View.INVISIBLE);
+                                           //  controllerView.setVisibility(View.INVISIBLE);
                                        }
                                    }
 
@@ -96,14 +130,14 @@ public class GuiActivity extends BaseSceneActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(LAYOUT_INFLATER_SERVICE);
-        guiView = inflater.inflate(R.layout.main_activity, null);
-        addContentView(guiView, Utils.createSurfaceViewLayoutParams());
+        controllerView = inflater.inflate(R.layout.main_activity, null);
+        addContentView(controllerView, Utils.createSurfaceViewLayoutParams());
         captureButton = (FloatingActionButton) findViewById(R.id.record_button);
-        button = (Button) findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
+        reConfigScene = (Button) findViewById(R.id.reConfigScene);
+        reConfigScene.setOnClickListener(new View.OnClickListener() {
                                       @Override
                                       public void onClick(View v) {
-                                          clickButton();
+                                          reConfigScene();
                                       }
                                   }
 
@@ -123,17 +157,21 @@ public class GuiActivity extends BaseSceneActivity {
         stateManager.startAnimation();
     }
 
-    private void clickButton() {
+    private void reConfigScene() {
         this.doSome();
     }
 
+
+    public void OnCaptureImage(){
+        Log.d(TAG,"CAPTURE IMAGE" );
+    }
 
     /**
      * The capture button controls all user interaction. When recording, the button click
      * stops recording, releases {@link android.media.MediaRecorder} and {@link android.hardware.Camera}. When not recording,
      * it prepares the {@link android.media.MediaRecorder} and starts recording.
      */
-    public void onCaptureClick() {
+    public void onRecordingVideo() {
         if (DEBUG) {
             Log.d(TAG, "videoView Sizes:" + Utils.printPairs(new Pair("w", videoView.getWidth()), new Pair("h", videoView.getHeight())));
             Log.d(TAG, "cameraView Sizes:" + Utils.printPairs(new Pair("w", mPreview.getWidth()), new Pair("h", mPreview.getHeight())));
@@ -171,12 +209,14 @@ public class GuiActivity extends BaseSceneActivity {
 
         @Override
         public void startRecordingVideo() {
+            circle.startAnimation(animation);
             new MediaPrepareTask().execute(null, null, null);
             videoView.setVisibility(View.GONE);
         }
 
         @Override
         public void stopRecordingVideo() {
+            animation.cancel();
             mPreview.stopRecord();
             // inform the user that recording has stopped
             //    setCaptureButtonText("Capture");
