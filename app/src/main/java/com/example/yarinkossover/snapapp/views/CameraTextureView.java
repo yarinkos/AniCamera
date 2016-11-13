@@ -17,6 +17,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Created by yarin.kossover on 8/13/2016.
  */
@@ -32,18 +35,36 @@ public class CameraTextureView extends TextureView {
     private static final String TAG = "Recorder";
     private CameraSurfaceTextureListener mCameraSurfaceTextureListener;
 
+    private boolean flash = false;
+
+    @Getter
+    @Setter
+    int currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+
     public CameraTextureView(Context context) {
         super(context);
         mCameraSurfaceTextureListener = new CameraSurfaceTextureListener();
         this.setSurfaceTextureListener(mCameraSurfaceTextureListener);
     }
 
-    public boolean isRecording(){
+    public boolean isRecording() {
         return isRecording;
     }
 
-    public void setRecordState(boolean state){
-        this.isRecording=state;
+    public void setRecordState(boolean state) {
+        this.isRecording = state;
+    }
+
+
+    public void changeCameraFacing() {
+        if (isRecording()) return;
+        if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
+            currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
+        } else {
+            currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+        }
+        releaseCamera();
+        startCameraPreview(currentCameraId);
     }
 
     private void resetMediaRecorder() {
@@ -59,11 +80,11 @@ public class CameraTextureView extends TextureView {
         }
     }
 
-    public void stopMediaRecording(){
+    public void stopMediaRecording() {
         mMediaRecorder.stop();
     }
 
-    public void stopRecord(){
+    public void stopRecord() {
         // BEGIN_INCLUDE(stop_release_media_recorder)
 
         // stop recording and release camera
@@ -82,7 +103,7 @@ public class CameraTextureView extends TextureView {
         setRecordState(false);
     }
 
-    public void  deleteOutputFile(){
+    public void deleteOutputFile() {
         mOutputFile.delete();
     }
 
@@ -107,12 +128,26 @@ public class CameraTextureView extends TextureView {
         }
     }
 
+    public void setFlash() {
+        if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
+            return;
+        Log.d(TAG, "set Flash");
+        this.flash = !this.flash;
+        Camera.Parameters parameters = mCamera.getParameters();
+        if (this.flash) {
+            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+        } else {
+            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+        }
+        this.mCamera.setParameters(parameters);
+    }
 
     //@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void startCameraPreview() {
+    public void startCameraPreview(int cameraId) {
 
         // BEGIN_INCLUDE (configure_preview)
-        mCamera = CameraHelper.getDefaultCameraInstance();
+//        mCamera = CameraHelper.getDefaultCameraInstance();
+        mCamera = Camera.open(cameraId);
 
         // We need to make sure that our preview and recording video size are supported by the
         // camera. Query camera to find all the sizes and choose the optimal size given the
@@ -159,7 +194,7 @@ public class CameraTextureView extends TextureView {
 
         // Step 3: Set a CamcorderProfile (requires API Level 8 or higher)
         mMediaRecorder.setProfile(profile);
-        mMediaRecorder.setOrientationHint(90);
+        mMediaRecorder.setOrientationHint(currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK ? 90 : 270);
         // Step 4: Set output file
         mOutputFile = CameraHelper.getOutputMediaFile(CameraHelper.MEDIA_TYPE_VIDEO);
         if (mOutputFile == null) {
@@ -183,7 +218,7 @@ public class CameraTextureView extends TextureView {
         return true;
     }
 
-    public void startVideoRecorder(){
+    public void startVideoRecorder() {
         mMediaRecorder.start();
 
         setRecordState(true);
@@ -225,7 +260,7 @@ public class CameraTextureView extends TextureView {
         mBackCameraInfo = backCamera.first;
         mCamera = Camera.open(backCameraId);
         cameraDisplayRotation();*/
-            startCameraPreview();
+            startCameraPreview(currentCameraId);
       /*  try {
             mCamera.setPreviewTexture(surface);
             mCamera.startPreview();

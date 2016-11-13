@@ -1,19 +1,21 @@
 package com.example.yarinkossover.snapapp;
 
-import android.content.Context;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.example.yarinkossover.snapapp.model.Post;
 import com.example.yarinkossover.snapapp.model.VideoPost;
@@ -21,9 +23,10 @@ import com.example.yarinkossover.snapapp.scenes.BaseSceneActivity;
 //import com.example.yarinkossover.snapapp.scenes.FaceAddSceneActivity;
 import com.example.yarinkossover.snapapp.utils.Utils;
 import com.example.yarinkossover.snapapp.views.SimpleDrawingView;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.example.yarinkossover.snapapp.views.smallviews.Circle;
+import com.example.yarinkossover.snapapp.views.smallviews.CircleAngleAnimation;
+import com.example.yarinkossover.snapapp.views.smallviews.colorpicker.LineColorPicker;
+import com.example.yarinkossover.snapapp.views.smallviews.colorpicker.OnColorChangedListener;
 
 
 /**
@@ -34,15 +37,25 @@ public class GuiActivity extends BaseSceneActivity {
     private String TAG = this.getClass().getSimpleName();
     private boolean DEBUG = true;
 
-    private Button button, button1;
+    private Button reconfigScene, painter ;
+    private ImageButton changeCamera;
     private FloatingActionButton captureButton;
     StateManager stateManager;
 
-    View guiView;
+    View controllerView;
+    LineColorPicker colorPicker;
     SimpleDrawingView simpleDrawingView;
     LayoutInflater inflater;
+    Circle circle;
+    CircleAngleAnimation animationCircle;
+    Animation animScale;
+
+    AnimationSet animationSet;
 
     Boolean displayPostsOfOthers = false;
+
+    public GuiActivity() {
+    }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -50,36 +63,99 @@ public class GuiActivity extends BaseSceneActivity {
         inflater = (LayoutInflater) getActivity().getSystemService(getActivity().LAYOUT_INFLATER_SERVICE);
         //  v = inflater.inflate(R.layout.main_activity, null);
         simpleDrawingView = new SimpleDrawingView(getActivity(), null);
-        guiView = inflater.inflate(R.layout.main_activity, null);
-        // guiView.setLayoutParams(Utils.createSurfaceViewLayoutParams());
-        ((ViewGroup) view).addView(simpleDrawingView, Utils.createSurfaceViewLayoutParams());
-        ((ViewGroup) view).addView(guiView, Utils.createSurfaceViewLayoutParams());
+        controllerView = inflater.inflate(R.layout.controllers_view, null);
+        // controllerView.setLayoutParams(Utils.createSurfaceViewLayoutParams());
 
+        colorPicker = (LineColorPicker) controllerView.findViewById(R.id.picker);
 
-        captureButton = (FloatingActionButton) guiView.findViewById(R.id.record_button);
-        captureButton.setOnClickListener(new View.OnClickListener() {
+// set color palette
+        colorPicker.setColors(getResources().getIntArray(R.array.colors_picker));
+
+// set selected color [optional]
+        colorPicker.setSelectedColor(Color.RED);
+
+// set on change listener
+        colorPicker.setOnColorChangedListener(new OnColorChangedListener() {
             @Override
-            public void onClick(View v) {
-                onCaptureClick();
+            public void onColorChanged(int c) {
+                Log.d(TAG, "Selected color " + Integer.toHexString(c));
             }
         });
-        button = (Button) guiView.findViewById(R.id.button);
 
-        button.setOnClickListener(new View.OnClickListener() {
-                                      @Override
-                                      public void onClick(View v) {
-                                          clickButton();
-                                      }
-                                  }
+// get selected color
+        int color = colorPicker.getColor();
+
+        ((ViewGroup) view).addView(simpleDrawingView, Utils.createSurfaceViewLayoutParams());
+        ((ViewGroup) view).addView(controllerView, Utils.createSurfaceViewLayoutParams());
+
+        circle = (Circle) controllerView.findViewById(R.id.record_button);
+        //circle.setRect(300);
+        attachAnimationForRecordButton();
+
+
+        //captureButton = (FloatingActionButton) controllerView.findViewById(R.id.record_button);
+        /*View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onRecordingVideo();
+            }
+        };*/
+        circle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                OnCaptureImage();
+            }
+        });
+        circle.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                onRecordingVideo();
+                return true;
+            }
+        });
+        View.OnTouchListener recordTouchListener = new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View pView, MotionEvent pEvent) {
+                // pView.onTouchEvent(pEvent);
+                // We're only interested in when the button is released.
+                if (pEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if (mPreview.isRecording())
+                        onRecordingVideo();
+                }
+                return false;
+            }
+        };
+
+        circle.setOnTouchListener(recordTouchListener);
+        // circle.setOnClickListener(onClickListener);
+        reconfigScene = (Button) controllerView.findViewById(R.id.reconfig_scene);
+
+        reconfigScene.setOnClickListener(new View.OnClickListener() {
+                                             @Override
+                                             public void onClick(View v) {
+                                                 reConfigScene();
+                                             }
+                                         }
 
         );
-        button1 = (Button) guiView.findViewById(R.id.button1);
-        button1.setOnClickListener(new View.OnClickListener() {
+        changeCamera = (ImageButton) controllerView.findViewById(R.id.switch_camara);
+        changeCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPreview.changeCameraFacing();
+            }
+        });
+
+
+        painter = (Button) controllerView.findViewById(R.id.painter);
+        painter.setOnClickListener(new View.OnClickListener() {
                                        @Override
                                        public void onClick(View v) {
-
+                                            mPreview.setFlash();
+                                         //   mPreview.changeCameraFacing();
                                            //     myViewPager.bringToFront();
-                                           //  guiView.setVisibility(View.INVISIBLE);
+                                           //  controllerView.setVisibility(View.INVISIBLE);
                                        }
                                    }
 
@@ -91,19 +167,46 @@ public class GuiActivity extends BaseSceneActivity {
 
     }
 
+    public void startRecordAnimation() {
+        circle.setDrawBigCircle(true);
+        circle.startAnimation(animationSet);
+    }
 
+    public void attachAnimationForRecordButton() {
+
+        animationCircle = new CircleAngleAnimation(circle, 360);
+        animationCircle.setDuration(10000);
+        animScale = AnimationUtils.loadAnimation(getActivity(), R.anim.scale);
+        animScale.setDuration(50);
+
+        //set new animationSet
+        animationSet = new AnimationSet(false);
+        animationSet.addAnimation(animationCircle);
+        animationSet.addAnimation(animScale);
+
+    }
+
+    public void stopRecordAnimation() {
+        Log.d(TAG, "Stop Animation for record button");
+
+        animationSet.getAnimations().get(0).cancel();
+        animationSet.getAnimations().get(1).cancel();
+        circle.clearAnimation();
+        circle.setDrawBigCircle(false);
+        circle.requestLayout();
+    }
     /*@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(LAYOUT_INFLATER_SERVICE);
-        guiView = inflater.inflate(R.layout.main_activity, null);
-        addContentView(guiView, Utils.createSurfaceViewLayoutParams());
+        controllerView = inflater.inflate(R.layout.main_activity, null);
+        addContentView(controllerView, Utils.createSurfaceViewLayoutParams());
         captureButton = (FloatingActionButton) findViewById(R.id.record_button);
-        button = (Button) findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
+        reConfigScene = (Button) findViewById(R.id.reConfigScene);
+        reConfigScene.setOnClickListener(new View.OnClickListener() {
                                       @Override
                                       public void onClick(View v) {
-                                          clickButton();
+                                          reConfigScene();
                                       }
                                   }
 
@@ -123,17 +226,21 @@ public class GuiActivity extends BaseSceneActivity {
         stateManager.startAnimation();
     }
 
-    private void clickButton() {
+    private void reConfigScene() {
         this.doSome();
     }
 
+
+    public void OnCaptureImage() {
+        Log.d(TAG, "CAPTURE IMAGE");
+    }
 
     /**
      * The capture button controls all user interaction. When recording, the button click
      * stops recording, releases {@link android.media.MediaRecorder} and {@link android.hardware.Camera}. When not recording,
      * it prepares the {@link android.media.MediaRecorder} and starts recording.
      */
-    public void onCaptureClick() {
+    public void onRecordingVideo() {
         if (DEBUG) {
             Log.d(TAG, "videoView Sizes:" + Utils.printPairs(new Pair("w", videoView.getWidth()), new Pair("h", videoView.getHeight())));
             Log.d(TAG, "cameraView Sizes:" + Utils.printPairs(new Pair("w", mPreview.getWidth()), new Pair("h", mPreview.getHeight())));
@@ -164,6 +271,7 @@ public class GuiActivity extends BaseSceneActivity {
 
         @Override
         public void showCamera() {
+            Log.d(TAG, "Show Camera");
             mPreview.setVisibility(View.VISIBLE);
             videoView.setVisibility(View.GONE);
             videoView.stopPlayback();
@@ -171,12 +279,16 @@ public class GuiActivity extends BaseSceneActivity {
 
         @Override
         public void startRecordingVideo() {
+            startRecordAnimation();
             new MediaPrepareTask().execute(null, null, null);
             videoView.setVisibility(View.GONE);
         }
 
+
         @Override
         public void stopRecordingVideo() {
+            Log.d(TAG, "stopRecording");
+            stopRecordAnimation();
             mPreview.stopRecord();
             // inform the user that recording has stopped
             //    setCaptureButtonText("Capture");
