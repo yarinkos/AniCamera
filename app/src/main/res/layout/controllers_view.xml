@@ -17,13 +17,31 @@
         android:text="@string/reconfig_scene"
         android:textSize="30dp" />
 
+    <ImageButton
+        android:id="@+id/switch_camara"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_gravity="right"
+        android:gravity="bottom"
+        android:layout_margin="25dp"
+        android:background="@drawable/changecamera"
+        />
+
+    <com.example.yarinkossover.snapapp.views.smallviews.colorpicker.LineColorPicker
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/picker"
+        android:layout_width="40dp"
+        android:layout_height="100dp"
+        android:layout_marginRight="30dp"
+        android:layout_gravity="right"
+        app:orientation="vertical"/>
+
     <Button
         android:id="@+id/painter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
+        android:layout_gravity="right|bottom"
         android:background="@color/transparent"
-        android:gravity="top"
         android:text="@string/Painter"
         android:textSize="30dp" />
 
@@ -60,5 +78,6 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="bottom|center"
-        android:layout_marginBottom="30dp" />
+        android:layout_marginBottom="45dp"
+        />
 </FrameLayout>

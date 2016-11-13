@@ -4,4 +4,32 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="transparent">#00000000</color>
+    <!--Color picker-->
+    <color name="red">#FF0000</color>
+    <color name="Pink">#FFC0CB</color>
+    <color name="LightPink">#FFB6C1</color>
+    <color name="MediumPurple">#9370DB</color>
+    <color name="blue">#FF0000</color>
+    <color name="green">#008000</color>
+    <color name="yellow">#FFFF00</color>
+    <color name="LightBlue">#ADD8E6</color>
+    <color name="Mustard">#FFDB58</color>
+    <color name="RosyBrown">#BC8F8F</color>
+    <color name="Black">#000000</color>
+
+    <array name="colors_picker">
+        <item>@color/red</item>
+        <item>@color/Pink</item>
+        <item>@color/LightPink</item>
+        <item>@color/MediumPurple</item>
+        <item>@color/blue</item>
+        <item>@color/green</item>
+        <item>@color/yellow</item>
+        <item>@color/LightBlue</item>
+        <item>@color/Mustard</item>
+        <item>@color/RosyBrown</item>
+        <item>@color/Black</item>
+    </array>
+
+
 </resources>
