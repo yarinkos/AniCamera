@@ -6,22 +6,26 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+
 public class SimpleDrawingView extends View {
     // setup initial color
-    private final int paintColor = Color.YELLOW;
+    private int paintColor = Color.YELLOW;
     // defines paint and canvas
     private Paint drawPaint;
     // stores next circle
-    private Path path = new Path();
+    ArrayList<Pair<Path,Paint>> paths = new ArrayList<>();
 
     public SimpleDrawingView(Context context, AttributeSet attrs) {
         super(context);
         setFocusable(true);
         setFocusableInTouchMode(true);
         setupPaint();
+        paths.add(new Pair<Path, Paint>(new Path(),drawPaint));
     }
 
     private void setupPaint() {
@@ -37,7 +41,8 @@ public class SimpleDrawingView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawPath(path, drawPaint);
+        for(Pair pair : paths)
+        canvas.drawPath((Path)pair.first, (Paint)pair.second);
     }
 
     @Override
@@ -47,10 +52,10 @@ public class SimpleDrawingView extends View {
         // Checks for the event that occurs
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                path.moveTo(pointX, pointY);
+                getCurrentPath().moveTo(pointX, pointY);
                 return true;
             case MotionEvent.ACTION_MOVE:
-                path.lineTo(pointX, pointY);
+                getCurrentPath().lineTo(pointX, pointY);
                 break;
             default:
                 return false;
@@ -58,6 +63,15 @@ public class SimpleDrawingView extends View {
         // Force a view to draw again
         postInvalidate();
         return true;
+    }
+
+    private Path getCurrentPath(){
+        return paths.get(paths.size()-1).first;
+    }
+    public void setPaintColor(int color) {
+        this.paintColor = color;
+        setupPaint();
+        paths.add(new Pair<Path, Paint>(new Path(),drawPaint));
     }
 
 }
