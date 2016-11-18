@@ -7,43 +7,56 @@
     android:orientation="vertical"
     tools:context=".GuiActivity">
 
-    <Button
-        android:id="@+id/reconfig_scene"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:background="@color/transparent"
-        android:gravity="top"
-        android:text="@string/reconfig_scene"
-        android:textSize="30dp" />
 
-    <ImageButton
-        android:id="@+id/switch_camara"
-        android:layout_width="65dp"
-        android:layout_height="65dp"
-        android:layout_gravity="right"
-        android:gravity="bottom"
-        android:layout_margin="25dp"
-        android:background="@drawable/changecamera"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center">
+
+        <ImageButton
+            android:id="@+id/reconfig_scene"
+            android:layout_width="65dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:background="@drawable/anibutton"/>
+
+        <ImageButton
+            android:id="@+id/flash"
+            android:layout_width="65dp"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/flash" />
+
+        <ImageButton
+            android:id="@+id/switch_camara"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/changecamera"
         />
+    </RelativeLayout>
 
-    <com.example.yarinkossover.snapapp.views.smallviews.colorpicker.LineColorPicker
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/picker"
-        android:layout_width="40dp"
-        android:layout_height="100dp"
-        android:layout_marginRight="30dp"
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="30dp"
+        android:layout_height="120dp"
         android:layout_gravity="right"
-        app:orientation="vertical"/>
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="50dp">
 
-    <Button
-        android:id="@+id/painter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|bottom"
-        android:background="@color/transparent"
-        android:text="@string/Painter"
-        android:textSize="30dp" />
+        <com.example.yarinkossover.snapapp.views.smallviews.colorpicker.LineColorPicker xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/picker"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:orientation="vertical" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/drawer_margin" />
+    </FrameLayout>
+
 
     <!--   <Button
            android:layout_width="fill_parent"
@@ -78,6 +91,5 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="bottom|center"
-        android:layout_marginBottom="45dp"
-        />
+        android:layout_marginBottom="45dp" />
 </FrameLayout>

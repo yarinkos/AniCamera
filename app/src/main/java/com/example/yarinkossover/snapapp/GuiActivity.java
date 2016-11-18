@@ -3,7 +3,6 @@ package com.example.yarinkossover.snapapp;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.util.Pair;
@@ -37,8 +36,8 @@ public class GuiActivity extends BaseSceneActivity {
     private String TAG = this.getClass().getSimpleName();
     private boolean DEBUG = true;
 
-    private Button reconfigScene, painter ;
-    private ImageButton changeCamera;
+    private ImageButton  reconfigScene ;
+    private ImageButton changeCamera, flashButton;
     private FloatingActionButton captureButton;
     StateManager stateManager;
 
@@ -79,6 +78,7 @@ public class GuiActivity extends BaseSceneActivity {
             @Override
             public void onColorChanged(int c) {
                 Log.d(TAG, "Selected color " + Integer.toHexString(c));
+                simpleDrawingView.setPaintColor(c);
             }
         });
 
@@ -129,7 +129,7 @@ public class GuiActivity extends BaseSceneActivity {
 
         circle.setOnTouchListener(recordTouchListener);
         // circle.setOnClickListener(onClickListener);
-        reconfigScene = (Button) controllerView.findViewById(R.id.reconfig_scene);
+        reconfigScene = (ImageButton ) controllerView.findViewById(R.id.reconfig_scene);
 
         reconfigScene.setOnClickListener(new View.OnClickListener() {
                                              @Override
@@ -148,8 +148,8 @@ public class GuiActivity extends BaseSceneActivity {
         });
 
 
-        painter = (Button) controllerView.findViewById(R.id.painter);
-        painter.setOnClickListener(new View.OnClickListener() {
+        flashButton = (ImageButton) controllerView.findViewById(R.id.flash);
+        flashButton.setOnClickListener(new View.OnClickListener() {
                                        @Override
                                        public void onClick(View v) {
                                             mPreview.setFlash();
