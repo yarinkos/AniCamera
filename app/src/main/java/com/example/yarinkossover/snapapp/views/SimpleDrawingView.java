@@ -74,4 +74,9 @@ public class SimpleDrawingView extends View {
         paths.add(new Pair<Path, Paint>(new Path(),drawPaint));
     }
 
+    public void clearPaint(){
+        paths.clear();
+        paths.add(new Pair<Path, Paint>(new Path(),drawPaint));
+    }
+
 }

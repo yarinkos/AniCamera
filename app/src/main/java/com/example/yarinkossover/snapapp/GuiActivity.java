@@ -16,6 +16,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 
+import com.example.yarinkossover.snapapp.model.ImagePost;
 import com.example.yarinkossover.snapapp.model.Post;
 import com.example.yarinkossover.snapapp.model.VideoPost;
 import com.example.yarinkossover.snapapp.scenes.BaseSceneActivity;
@@ -36,18 +37,29 @@ public class GuiActivity extends BaseSceneActivity {
     private String TAG = this.getClass().getSimpleName();
     private boolean DEBUG = true;
 
-    private ImageButton  reconfigScene ;
+    /****
+     * controller view buttons
+     ***/
+    private ImageButton reconfigScene;
     private ImageButton changeCamera, flashButton;
-    private FloatingActionButton captureButton;
-    StateManager stateManager;
 
-    View controllerView;
-    LineColorPicker colorPicker;
-    SimpleDrawingView simpleDrawingView;
-    LayoutInflater inflater;
     Circle circle;
     CircleAngleAnimation animationCircle;
     Animation animScale;
+
+    private FloatingActionButton captureButton;
+
+    /****
+     * edit view buttons
+     ***/
+
+    private ImageButton backToControllerViewButton, addTextButton , drawButton;
+
+    StateManager stateManager;
+    View controllerView, editModeView;
+    LineColorPicker colorPicker;
+    SimpleDrawingView simpleDrawingView;
+    LayoutInflater inflater;
 
     AnimationSet animationSet;
 
@@ -62,10 +74,20 @@ public class GuiActivity extends BaseSceneActivity {
         inflater = (LayoutInflater) getActivity().getSystemService(getActivity().LAYOUT_INFLATER_SERVICE);
         //  v = inflater.inflate(R.layout.main_activity, null);
         simpleDrawingView = new SimpleDrawingView(getActivity(), null);
+        simpleDrawingView.setVisibility(View.INVISIBLE);
         controllerView = inflater.inflate(R.layout.controllers_view, null);
+        editModeView = inflater.inflate(R.layout.editmode_view, null);
         // controllerView.setLayoutParams(Utils.createSurfaceViewLayoutParams());
-
-        colorPicker = (LineColorPicker) controllerView.findViewById(R.id.picker);
+        backToControllerViewButton = (ImageButton) editModeView.findViewById(R.id.back);
+        backToControllerViewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stateManager.backToControllerView();
+            }
+        });
+        addTextButton= (ImageButton) editModeView.findViewById(R.id.add_text);
+        drawButton= (ImageButton) editModeView.findViewById(R.id.draw);
+        colorPicker = (LineColorPicker) editModeView.findViewById(R.id.picker);
 
 // set color palette
         colorPicker.setColors(getResources().getIntArray(R.array.colors_picker));
@@ -82,12 +104,10 @@ public class GuiActivity extends BaseSceneActivity {
             }
         });
 
-// get selected color
-        int color = colorPicker.getColor();
-
         ((ViewGroup) view).addView(simpleDrawingView, Utils.createSurfaceViewLayoutParams());
         ((ViewGroup) view).addView(controllerView, Utils.createSurfaceViewLayoutParams());
-
+        ((ViewGroup) view).addView(editModeView, Utils.createSurfaceViewLayoutParams());
+        editModeView.setVisibility(View.INVISIBLE);
         circle = (Circle) controllerView.findViewById(R.id.record_button);
         //circle.setRect(300);
         attachAnimationForRecordButton();
@@ -104,6 +124,7 @@ public class GuiActivity extends BaseSceneActivity {
             @Override
             public void onClick(View v) {
                 OnCaptureImage();
+                stateManager.goToEditMode();
             }
         });
         circle.setOnLongClickListener(new View.OnLongClickListener() {
@@ -129,7 +150,7 @@ public class GuiActivity extends BaseSceneActivity {
 
         circle.setOnTouchListener(recordTouchListener);
         // circle.setOnClickListener(onClickListener);
-        reconfigScene = (ImageButton ) controllerView.findViewById(R.id.reconfig_scene);
+        reconfigScene = (ImageButton) controllerView.findViewById(R.id.reconfig_scene);
 
         reconfigScene.setOnClickListener(new View.OnClickListener() {
                                              @Override
@@ -150,14 +171,14 @@ public class GuiActivity extends BaseSceneActivity {
 
         flashButton = (ImageButton) controllerView.findViewById(R.id.flash);
         flashButton.setOnClickListener(new View.OnClickListener() {
-                                       @Override
-                                       public void onClick(View v) {
-                                            mPreview.setFlash();
-                                         //   mPreview.changeCameraFacing();
-                                           //     myViewPager.bringToFront();
-                                           //  controllerView.setVisibility(View.INVISIBLE);
+                                           @Override
+                                           public void onClick(View v) {
+                                               mPreview.setFlash();
+                                               //   mPreview.changeCameraFacing();
+                                               //     myViewPager.bringToFront();
+                                               //  controllerView.setVisibility(View.INVISIBLE);
+                                           }
                                        }
-                                   }
 
         );
         stateManager = new StateManager();
@@ -220,6 +241,7 @@ public class GuiActivity extends BaseSceneActivity {
 
     public void setPostToPlay(Post post) {
         if (post instanceof VideoPost) videoView.setVideoURI(((VideoPost) post).getVideoURI());
+        if (post instanceof ImagePost) videoView.setVideoURI(((ImagePost) post).getImageURI());
         displayPostsOfOthers = true;
         setDemoPost();
         stateManager.showVideo();
@@ -316,6 +338,21 @@ public class GuiActivity extends BaseSceneActivity {
         @Override
         public void startAnimation() {
             doSome();
+        }
+
+        @Override
+        public void goToEditMode() {
+            editModeView.setVisibility(View.VISIBLE);
+            controllerView.setVisibility(View.INVISIBLE);
+            simpleDrawingView.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        public void backToControllerView() {
+            simpleDrawingView.setVisibility(View.INVISIBLE);
+            simpleDrawingView.clearPaint();
+            controllerView.setVisibility(View.VISIBLE);
+            editModeView.setVisibility(View.INVISIBLE);
         }
     }
 

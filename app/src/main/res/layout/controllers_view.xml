@@ -37,6 +37,7 @@
         />
     </RelativeLayout>
 
+<!--
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="30dp"
@@ -57,6 +58,7 @@
             android:background="@drawable/drawer_margin" />
     </FrameLayout>
 
+-->
 
     <!--   <Button
            android:layout_width="fill_parent"
