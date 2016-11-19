@@ -20,5 +20,9 @@ public interface IState {
 
     void startAnimation();
 
+    void goToEditMode();
+
+    void backToControllerView();
+
 
 }
